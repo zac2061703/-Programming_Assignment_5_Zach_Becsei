@@ -8,6 +8,7 @@ import bcrypt
 app = Flask(__name__)
 
 
+# Display the registration form.
 @app.route("/register", methods=["GET"])
 def register():
     return """
@@ -31,18 +32,26 @@ def register():
 """
 
 
+# Process the submitted registration form.
 @app.route("/register", methods=["POST"])
 def register_post():
+    # Retrieve the submitted form values.
     full_name = request.form["full_name"]
     username = request.form["username"]
     password = request.form["password"]
     confirm_password = request.form["confirm_password"]
 
+    # Validate the username and password requirements.
     if not username.replace("_", "").isalnum():
-        return "Error: Username can only contain letters, numbers, and underscores."
+        return (
+            "Error: Username can only contain letters, "
+            "numbers, and underscores."
+        )
     
     if len(password) < 8:
-        return "Error: Password must be at least 8 characters long."
+        return (
+            "Error: Password must be at least 8 characters long."
+        )
     
     if not any(char.isalpha() for char in password):
         return "Error: Password must contain at least one letter."
@@ -53,12 +62,13 @@ def register_post():
     if password != confirm_password:
         return "Error: Passwords do not match."
     
+    # Hash the valid password with bcrypt before displaying it.
     hashed_password = bcrypt.hashpw(
         password.encode("utf-8"),
         bcrypt.gensalt()
     )
-
-
+    
+    # Display the valid registration information.
     return f"""
     <h1>Registration Successful</h1>
     <p>Full Name: {full_name}</p>
@@ -66,5 +76,7 @@ def register_post():
     <p>Hashed Password: {hashed_password.decode("utf-8")}</p>
     """  
 
+
+# Run the Flask development server.
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
