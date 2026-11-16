@@ -2,7 +2,7 @@
 # CIS256 Fall 2026
 # Programming Assignment 5
 
-from flask import Flask
+from flask import Flask, request
 
 
 app = Flask(__name__)
@@ -29,6 +29,31 @@ def register():
     <button type="submit">Register</button>
 </form>
 """
+
+
+@app.route("/register", methods=["POST"])
+def register_post():
+    full_name = request.form["full_name"]
+    username = request.form["username"]
+    password = request.form["password"]
+    confirm_password = request.form["confirm_password"]
+
+    if not username.replace("_", "").isalnum():
+        return "Error: Username can only contain letters, numbers, and underscores."
+    
+    if len(password) < 8:
+        return "Error: Password must be at least 8 characters long."
+    
+    if not any(char.isalpha() for char in password):
+        return "Error: Password must contain at least one letter."
+
+    if not any(char.isdigit() for char in password):
+        return "Error: Password must contain at least one number."
+    
+    if password != confirm_password:
+        return "Error: Passwords do not match."
+
+    return f"Received registration for {full_name}"  
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
